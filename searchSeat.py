@@ -1,7 +1,7 @@
 '''
 Author: SpadeXiao
 Date: 2021-09-02 21:14:02
-LastEditTime: 2021-09-03 10:05:00
+LastEditTime: 2021-09-03 10:34:34
 '''
 import requests
 import json
@@ -41,6 +41,9 @@ while(len(available_seat) == 0 and flag > 0):
         print('网络拥堵。次数为%d'%flag)
     else:
         res = res.json()
+        if res.get('errors'):
+            print(res)
+            exit()
         seat_list = res['data']['userAuth']['reserve']['libs'][0]['lib_layout']['seats']
         for seat in seat_list:
             if seat.get('seat_status') == 1:
