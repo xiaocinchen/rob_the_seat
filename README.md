@@ -1,8 +1,8 @@
 # rob_the_seat
 We can rob the seat!
 
-##How to use it?
+## How to use it?
 python3 searchSeat.py.
 
-##Attention! 
+## Attention! 
 You should get your cookie first!
