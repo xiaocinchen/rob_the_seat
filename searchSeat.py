@@ -1,12 +1,15 @@
 '''
 Author: SpadeXiao
 Date: 2021-09-02 21:14:02
-LastEditTime: 2021-09-03 10:34:34
+LastEditTime: 2021-09-07 10:08:05
 '''
 import requests
 import json
+import random
+import time
 
-cookie = input("请输入你的cookie：\n")
+cookie1 = input("请输入你的第一个cookie：\n")
+cookie2 = input("请输入你的第二个cookie：\n")
 url = "https://wechat.v2.traceint.com/index.php/graphql/"
 
 search_params = {
@@ -17,12 +20,25 @@ search_params = {
     "operationName": "libLayout"
 }
 
-headers = {
+headers1 = {
     "Host": "wechat.v2.traceint.com",
     "Content-Type": "application/json",
     "Origin": "https://web.traceint.com",
     "Accept-Encoding": "gzip, deflate, br",
-    "Cookie": cookie,
+    "Cookie": cookie1,
+    "Connection": "keep-alive",
+    "Accept": "*/*",
+    "User-Agent": "Mozilla/5.0 (iPad; CPU OS 13_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.12(0x18000c27) NetType/WIFI Language/zh_CN",
+    "Referer": "https://web.traceint.com/web/index.html",
+    "Accept-Language": "zh-cn"
+}
+
+headers2 = {
+    "Host": "wechat.v2.traceint.com",
+    "Content-Type": "application/json",
+    "Origin": "https://web.traceint.com",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Cookie": cookie2,
     "Connection": "keep-alive",
     "Accept": "*/*",
     "User-Agent": "Mozilla/5.0 (iPad; CPU OS 13_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.12(0x18000c27) NetType/WIFI Language/zh_CN",
@@ -33,8 +49,18 @@ headers = {
 search_data = json.dumps(search_params)
 
 available_seat, flag = [], 1
+start = time.time()
 while(len(available_seat) == 0 and flag > 0):
-    print("第%d次开始"%flag,end = '\r')
+    end = time.time()
+    print("第%d次开始。目前耗时%d秒"%(flag,end-start),end = '\r')
+    r = random.randint(1,1000)
+    if r%3 == 0:
+        headers = headers1
+    elif r%3 == 1:
+        headers = headers2
+    else:
+        time.sleep(1)
+        continue
     res = requests.get(url,headers=headers,data=search_data)
     # print(res.text)
     if "html" in res.text:
@@ -43,6 +69,8 @@ while(len(available_seat) == 0 and flag > 0):
         res = res.json()
         if res.get('errors'):
             print(res)
+            end = time.time()
+            print("总耗时：",end - start,"秒")
             exit()
         seat_list = res['data']['userAuth']['reserve']['libs'][0]['lib_layout']['seats']
         for seat in seat_list:
@@ -72,4 +100,5 @@ for seat in available_seat:
         print('抢座成功！请及时查看！')
         break
     # print(flag)
+    
 
