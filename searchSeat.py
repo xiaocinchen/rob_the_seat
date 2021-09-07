@@ -1,15 +1,15 @@
 '''
 Author: SpadeXiao
 Date: 2021-09-02 21:14:02
-LastEditTime: 2021-09-07 10:08:05
+LastEditTime: 2021-09-07 12:00:35
 '''
 import requests
 import json
 import random
 import time
 
-cookie1 = input("请输入你的第一个cookie：\n")
-cookie2 = input("请输入你的第二个cookie：\n")
+cookie1 = input("请输入你的轮询cookie：\n")
+cookie2 = input("请输入你的抢座cookie：\n")
 url = "https://wechat.v2.traceint.com/index.php/graphql/"
 
 search_params = {
@@ -54,12 +54,10 @@ while(len(available_seat) == 0 and flag > 0):
     end = time.time()
     print("第%d次开始。目前耗时%d秒"%(flag,end-start),end = '\r')
     r = random.randint(1,1000)
-    if r%3 == 0:
+    if r%2 == 0:
         headers = headers1
-    elif r%3 == 1:
-        headers = headers2
     else:
-        time.sleep(1)
+        time.sleep(random.randint(5, 10)/10)
         continue
     res = requests.get(url,headers=headers,data=search_data)
     # print(res.text)
@@ -69,10 +67,12 @@ while(len(available_seat) == 0 and flag > 0):
         res = res.json()
         if res.get('errors'):
             print(res)
+            print("可能是你的cookie已过期")
             end = time.time()
             print("总耗时：",end - start,"秒")
             exit()
         seat_list = res['data']['userAuth']['reserve']['libs'][0]['lib_layout']['seats']
+        # print(seat_list)
         for seat in seat_list:
             if seat.get('seat_status') == 1:
                 available_seat.append(seat.get('key'))
@@ -93,7 +93,7 @@ for seat in available_seat:
         "operationName": "reserveSeat"
     }
     reserve_data = json.dumps(reserve_params)
-    res = requests.post(url,headers=headers,data=reserve_data).json()
+    res = requests.post(url,headers=headers2,data=reserve_data).json()
     if res.get('errors'):
         print('抢座失败！将再次尝试！错误内容:',res.get('errors')[0].get('msg'))
     else:
